@@ -48,6 +48,7 @@ function build_qca() {
 
 	push_arm
 
+ 
  # configure
  try cmake \
   -DCMAKE_BUILD_TYPE=Release \
@@ -60,6 +61,7 @@ function build_qca() {
   -DBUILD_TOOLS=OFF \
   -DWITH_nss_PLUGIN=OFF \
   -DWITH_pkcs11_PLUGIN=OFF \
+  -DCMAKE_PREFIX_PATH=$QTSDK \
   $BUILD_qca
  # try $MAKESMP
  try make install
