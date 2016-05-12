@@ -1,0 +1,109 @@
+diff -urb build/qgis/android-2_6/src/core/qgslabel.cpp build-ac/qgis/android-2_6/src/core/qgslabel.cpp
+--- build/qgis/android-2_6/src/core/qgslabel.cpp	2015-01-14 06:38:55.000000000 -0800
++++ build-ac/qgis/android-2_6/src/core/qgslabel.cpp	2016-05-11 11:08:12.575176786 -0700
+@@ -576,10 +576,10 @@
+   QGis::WkbType wkbType;
+ #ifndef QT_NO_DEBUG
+   const unsigned char *geomend = geom + geomlen;
++  Q_ASSERT( geom + 1 + sizeof( wkbType ) <= geomend );
+ #else
+   Q_UNUSED( geomlen );
+ #endif
+-  Q_ASSERT( geom + 1 + sizeof( wkbType ) <= geomend );
+ 
+   geom++; // skip endianness
+   memcpy( &wkbType, geom, sizeof( wkbType ) );
+@@ -592,7 +592,9 @@
+     case QGis::WKBPoint25D:
+     case QGis::WKBPoint:
+     {
++#ifndef QT_NO_DEBUG
+       Q_ASSERT( geom + 2*sizeof( double ) <= geomend );
++#endif
+       double *pts = ( double * )geom;
+       point.p.set( pts[0], pts[1] );
+       point.angle = 0.0;
+@@ -604,11 +606,15 @@
+       dims = 3;
+     case QGis::WKBLineString: // Line center
+     {
++#ifndef QT_NO_DEBUG
+       Q_ASSERT( geom + sizeof( int ) <= geomend );
++#endif
+       int nPoints = *( unsigned int * )geom;
+       geom += sizeof( int );
+ 
++#ifndef QT_NO_DEBUG
+       Q_ASSERT( geom + nPoints*sizeof( double )*dims <= geomend );
++#endif
+ 
+       // get line center
+       double *pts = ( double * )geom;
+@@ -650,17 +656,23 @@
+       dims = 3;
+     case QGis::WKBPolygon: // centroid of outer ring
+     {
++#ifndef QT_NO_DEBUG
+       Q_ASSERT( geom + sizeof( int ) <= geomend );
++#endif
+       int nRings = *( unsigned int * )geom;
+       geom += sizeof( int );
+ 
+       for ( int i = 0; i < nRings; ++i )
+       {
++#ifndef QT_NO_DEBUG
+         Q_ASSERT( geom + sizeof( int ) <= geomend );
++#endif
+         int nPoints = *( unsigned int * )geom;
+         geom += sizeof( int );
+ 
++#ifndef QT_NO_DEBUG
+         Q_ASSERT( geom + nPoints*sizeof( double )*dims <= geomend );
++#endif
+ 
+         if ( i == 0 )
+         {
+diff -urb build/qgis/android-2_6/src/core/symbology-ng/qgssvgcache.h build-ac/qgis/android-2_6/src/core/symbology-ng/qgssvgcache.h
+--- build/qgis/android-2_6/src/core/symbology-ng/qgssvgcache.h	2015-01-14 06:38:55.000000000 -0800
++++ build-ac/qgis/android-2_6/src/core/symbology-ng/qgssvgcache.h	2016-05-11 09:49:08.096108086 -0700
+@@ -24,6 +24,7 @@
+ #include <QMutex>
+ #include <QString>
+ #include <QUrl>
++#include <QObject>
+ 
+ class QDomElement;
+ class QImage;
+diff -urb build/qgis/android-2_6/src/gui/qgisgui.h build-ac/qgis/android-2_6/src/gui/qgisgui.h
+--- build/qgis/android-2_6/src/gui/qgisgui.h	2015-01-14 06:38:55.000000000 -0800
++++ build-ac/qgis/android-2_6/src/gui/qgisgui.h	2016-05-11 12:03:29.991462612 -0700
+@@ -18,6 +18,7 @@
+ #include <Qt>
+ #include <QPair>
+ #include <QStringList>
++#include <QWidget>
+ 
+ /** \ingroup gui
+  * /namespace QgisGui
+diff -urb build/qgis/android-2_6/src/plugins/gps_importer/qgsgpsplugin.h build-ac/qgis/android-2_6/src/plugins/gps_importer/qgsgpsplugin.h
+--- build/qgis/android-2_6/src/plugins/gps_importer/qgsgpsplugin.h	2015-01-14 06:38:55.000000000 -0800
++++ build-ac/qgis/android-2_6/src/plugins/gps_importer/qgsgpsplugin.h	2016-05-11 12:36:58.337901428 -0700
+@@ -21,6 +21,7 @@
+ #include "qgsbabelformat.h"
+ #include "qgsgpsdevice.h"
+ #include "qgisplugin.h"
++#include <QObject>
+ 
+ class QgisInterface;
+ class QgsVectorLayer;
+diff -urb build/qgis/android-2_6/src/providers/delimitedtext/qgsdelimitedtextfile.h build-ac/qgis/android-2_6/src/providers/delimitedtext/qgsdelimitedtextfile.h
+--- build/qgis/android-2_6/src/providers/delimitedtext/qgsdelimitedtextfile.h	2015-01-14 06:38:55.000000000 -0800
++++ build-ac/qgis/android-2_6/src/providers/delimitedtext/qgsdelimitedtextfile.h	2016-05-11 12:14:43.521462612 -0700
+@@ -21,6 +21,7 @@
+ #include <QStringList>
+ #include <QRegExp>
+ #include <QUrl>
++#include <QObject>
+ 
+ class QgsFeature;
+ class QgsField;
